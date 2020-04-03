@@ -10,15 +10,13 @@ import java.util.NoSuchElementException;
 import java.util.Scanner;
 
 public class UserManager {
-    private static Reader reader;
     private static Writer writer;
     private static Scanner scanner;
     private boolean manualInput;
 
-    public UserManager(Reader reader, Writer writer, boolean manualInput) {
-        this.reader = reader;
+    public UserManager(Scanner scanner, Writer writer, boolean manualInput) {
         this.writer = writer;
-        this.scanner = new Scanner(reader);
+        this.scanner = scanner;
         this.manualInput = manualInput;
     }
 

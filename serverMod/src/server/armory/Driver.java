@@ -1,5 +1,6 @@
 package server.armory;
 
+import common.manager.DataExchange;
 import server.commands.*;
 import server.exceptions.NoExecuteScriptInScript;
 import server.receiver.collection.ICollectionManager;
@@ -34,22 +35,22 @@ public class Driver {
     public Driver ( ) {
         this.arrayDeque = new ArrayDeque<>( );
         registerCommand((Command) new AddCommand( ));
-        registerCommand(new ClearCommand( ));
-        registerCommand(new ExecuteScriptCommand( ));
-        registerCommand(new ExitCommand( ));
-        registerCommand(new FilterLessThanDistanceCommand( ));
-        registerCommand(new HelpCommand( ));
-        registerCommand(new HistoryCommand( ));
-        registerCommand(new InfoCommand( ));
-        registerCommand(new LoadCommand( ));
-        registerCommand(new PrintAscendingCommand( ));
-        registerCommand(new RemoveByIdCommand( ));
-        registerCommand(new RemoveGreaterCommand( ));
-        registerCommand(new RemoveLowerCommand( ));
-        registerCommand(new SaveCommand( ));
-        registerCommand(new ShowCommand( ));
-        registerCommand(new SumOfDistanceCommand( ));
-        registerCommand(new UpdateIdCommand( ));
+//        registerCommand(new ClearCommand( ));
+//        registerCommand(new ExecuteScriptCommand( ));
+//        registerCommand(new ExitCommand( ));
+//        registerCommand(new FilterLessThanDistanceCommand( ));
+//        registerCommand(new HelpCommand( ));
+//        registerCommand(new HistoryCommand( ));
+//        registerCommand(new InfoCommand( ));
+//        registerCommand(new LoadCommand( ));
+//        registerCommand(new PrintAscendingCommand( ));
+//        registerCommand(new RemoveByIdCommand( ));
+//        registerCommand(new RemoveGreaterCommand( ));
+//        registerCommand(new RemoveLowerCommand( ));
+//        registerCommand(new SaveCommand( ));
+//        registerCommand(new ShowCommand( ));
+//        registerCommand(new SumOfDistanceCommand( ));
+//        registerCommand(new UpdateIdCommand( ));
 
     }
 

@@ -1,7 +1,7 @@
 package server.commands;
 
 
-import server.armory.DataExchange;
+import common.manager.DataExchange;
 import server.receiver.collection.ICollectionManager;
 
 /**

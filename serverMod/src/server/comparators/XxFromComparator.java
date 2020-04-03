@@ -1,6 +1,6 @@
 package server.comparators;
 
-import generatedClasses.Route;
+import common.generatedClasses.Route;
 
 import java.util.Comparator;
 

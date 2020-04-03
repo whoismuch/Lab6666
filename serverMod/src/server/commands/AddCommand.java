@@ -5,7 +5,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import common.converters.GsonZonedDateTimeConverter;
 import common.generatedClasses.Route;
-import server.armory.DataExchange;
+import common.manager.DataExchange;
 import server.receiver.collection.ICollectionManager;
 
 import java.time.ZonedDateTime;
@@ -37,7 +37,7 @@ public class AddCommand implements Command {
         try {
             dataExchange.send("Вы можете начать ввод объекта");
             Gson gson = new GsonBuilder().registerTypeAdapter(ZonedDateTime.class, new GsonZonedDateTimeConverter()).setPrettyPrinting().create();
-            Route route = gson.fromJson((JsonElement) dataExchange.get(), Route.class);
+            Route route = gson.fromJson((String) dataExchange.get(), Route.class);
             icm.add(route);
             dataExchange.send("Объект " + route.getName() + " успешно добавлен в коллекцию!");
         }catch (ClassCastException e){
