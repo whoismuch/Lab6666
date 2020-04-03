@@ -85,6 +85,8 @@ public class ClientProviding {
                 Gson commandGson = new GsonBuilder().setPrettyPrinting().registerTypeAdapter(CommandDescription.class, new CommandDescriptionConverter()).create();
                 //System.out.println(gson.fromJson(gson.toJson(command),CommandDescription.class));
 
+                
+
                 toServer.writeObject(commandGson.toJson(command));
                 String flag = (String) fromServer.readObject();
                 System.out.println(flag);
