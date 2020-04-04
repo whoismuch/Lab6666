@@ -1,7 +1,7 @@
 package server.commands;
 
 
-import common.manager.DataExchange;
+import common.manager.DataExchangeWithClient;
 import server.receiver.collection.ICollectionManager;
 
 /**
@@ -17,7 +17,7 @@ public interface Command {
      * @param icm
      * @param s
      */
-    void execute (DataExchange dataExchange, ICollectionManager icm, String arg);
+    void execute (DataExchangeWithClient dataExchangeWithClient, ICollectionManager icm, String arg);
 
     /**
      * Абстрактный метод для получения описания команды

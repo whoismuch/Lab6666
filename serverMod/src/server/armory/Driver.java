@@ -1,6 +1,6 @@
 package server.armory;
 
-import common.manager.DataExchange;
+import common.manager.DataExchangeWithClient;
 import server.commands.*;
 import server.exceptions.NoExecuteScriptInScript;
 import server.receiver.collection.ICollectionManager;
@@ -71,12 +71,12 @@ public class Driver {
      * @param line
      * @throws NoExecuteScriptInScript ошибка возникает, если в скрипте будет команда вызова скрипта
      */
-    public void execute (DataExchange dataExchange, ICollectionManager icm, String line, String arg) throws NoExecuteScriptInScript {
+    public void execute (DataExchangeWithClient dataExchangeWithClient, ICollectionManager icm, String line, String arg) throws NoExecuteScriptInScript {
         Command command = man.get(line);
         if (command == null) {
-            dataExchange.send("Неверное имя команды : " + line);
+            dataExchangeWithClient.sendToClient("Неверное имя команды : " + line);
         } else {
-            command.execute(dataExchange, icm, arg);
+            command.execute(dataExchangeWithClient, icm, arg);
             addHisrory(line);
         }
     }

@@ -2,10 +2,9 @@ package server.commands;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonElement;
 import common.converters.GsonZonedDateTimeConverter;
 import common.generatedClasses.Route;
-import common.manager.DataExchange;
+import common.manager.DataExchangeWithClient;
 import server.receiver.collection.ICollectionManager;
 
 import java.time.ZonedDateTime;
@@ -33,15 +32,15 @@ public class AddCommand implements Command {
 
 
     @Override
-    public void execute(DataExchange dataExchange, ICollectionManager icm, String arg) {
+    public void execute(DataExchangeWithClient dataExchangeWithClient, ICollectionManager icm, String arg) {
         try {
-            dataExchange.send("Вы можете начать ввод объекта");
+            dataExchangeWithClient.sendToClient("Вы можете начать ввод объекта");
             Gson gson = new GsonBuilder().registerTypeAdapter(ZonedDateTime.class, new GsonZonedDateTimeConverter()).setPrettyPrinting().create();
-            Route route = gson.fromJson((String) dataExchange.get(), Route.class);
+            Route route = gson.fromJson(dataExchangeWithClient.getFromClient(), Route.class);
             icm.add(route);
-            dataExchange.send("Объект " + route.getName() + " успешно добавлен в коллекцию!");
+            dataExchangeWithClient.sendToClient("Объект " + route.getName() + " успешно добавлен в коллекцию!");
         }catch (ClassCastException e){
-            dataExchange.send("Ошибка при создании класса");
+            dataExchangeWithClient.sendToClient("Ошибка при создании класса");
         }
     }
 

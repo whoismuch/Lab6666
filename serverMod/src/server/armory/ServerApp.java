@@ -4,10 +4,8 @@ import server.receiver.collection.Navigator;
 import server.receiver.collection.RouteBook;
 
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.net.UnknownHostException;
+import java.net.*;
+import java.nio.channels.ServerSocketChannel;
 
 public class ServerApp {
 
@@ -21,10 +19,12 @@ public class ServerApp {
     public static void main (String[] args) {
         RouteBook routeBook = new RouteBook();
         Navigator navigator = new Navigator(routeBook);
-        try (ServerSocket server = new ServerSocket(8800)) {
-            System.out.print("Сервер начал слушать клиента " + "\nПорт " + server.getLocalPort( ) +
+        SocketAddress address = new InetSocketAddress("localhost", 8800);
+        try (ServerSocketChannel ss = ServerSocketChannel.open()) {
+            ss.bind(address);
+            System.out.print("Сервер начал слушать клиента " + "\nПорт " + ss.getLocalAddress() +
                     " / Адрес " + InetAddress.getLocalHost( ) + ".\nОжидаем подключения клиента ");
-            Socket incoming = server.accept( );
+            Socket incoming = ss.accept( ).socket();
             System.out.println(incoming + " подключился к серверу.");
             ServerConnection sc = new ServerConnection(navigator, incoming);
             sc.serverWork();

@@ -27,11 +27,12 @@ public class ClientProviding {
     private static Scanner fromKeyboard;
     private ByteBuffer f;
     private SocketChannel s;
-    private static ObjectOutputStream toServer;
-    private static ObjectInputStream fromServer;
-    // private SocketAddress outcoming;
-    private SocketChannel outcomingchanell;
-    private ByteBuffer f;
+    private DataExchangeWithServer dataExchangeWithServer;
+//    private static ObjectOutputStream toServer;
+//    private static ObjectInputStream fromServer;
+    private SocketAddress outcoming;
+    //private SocketChannel outcomingchanell;
+    //private ByteBuffer f;
     private UserManager userManager;
 
     /**
@@ -40,16 +41,12 @@ public class ClientProviding {
     public void clientWork ( ) throws IOException {
         try (Scanner scanner = new Scanner(System.in)) {
             userManager = new UserManager(scanner, new BufferedWriter(new OutputStreamWriter(System.out, StandardCharsets.UTF_8)), true);
-            SocketAddress address = new InetSocketAddress("localhost", 8800 )
+            outcoming = new InetSocketAddress("localhost", 8800 );
             while (true) {
-                try (SocketChannel outcoming = SocketChannel.open(address)) {
-                    try (ObjectOutputStream outputStream = new ObjectOutputStream(outcoming.getOutputStream( ));
-                         ObjectInputStream inputStream = new ObjectInputStream(outcoming.getInputStream( ))) {
-                        toServer = outputStream;
-                        fromServer = inputStream;
+                try (SocketChannel outcomingchanell = SocketChannel.open(outcoming)) {
+                    dataExchangeWithServer = new DataExchangeWithServer(outcomingchanell);
                         clientLaunch( );
                         userManager.write("Завершение программы.");
-                    }
                 } catch (IOException e) {
                     userManager.write("Нет связи с сервером. Подключться ещё раз (введите {да} или {нет})?");
                     String answer;
@@ -73,8 +70,7 @@ public class ClientProviding {
 
 
     public void clientLaunch ( ) throws IOException {
-        try {
-            userManager.write((String) fromServer.readObject( ));
+            userManager.write(dataExchangeWithServer.getFromServer());
             String line;
             while (!(line = userManager.read( )).equals("exit")) {
                 line = line.trim( );
@@ -95,18 +91,14 @@ public class ClientProviding {
                     //System.out.println(gson.fromJson(gson.toJson(command),CommandDescription.class));
 
                     System.out.println(commandGson.toJson(command));
-                    toServer.writeObject(commandGson.toJson(command));
-                    String flag = (String) fromServer.readObject( );
+                    dataExchangeWithServer.sendToServer(commandGson.toJson(command));
+                    String flag = dataExchangeWithServer.getFromServer();
                     System.out.println(flag);
                     if (flag.equals("Вы можете начать ввод объекта")) {
                         Route route = userManager.readRoute( );
                         Gson routeGson = new GsonBuilder( ).registerTypeAdapter(ZonedDateTime.class, new GsonZonedDateTimeConverter( )).setPrettyPrinting( ).create( );
-                        toServer.writeObject(routeGson.toJson(route));
+                        dataExchangeWithServer.sendToServer(routeGson.toJson(route));
                     }
                 }
-
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace( );
-        }
     }
 }
