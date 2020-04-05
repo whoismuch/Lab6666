@@ -23,7 +23,7 @@ public class ServerApp {
         try (ServerSocketChannel ss = ServerSocketChannel.open()) {
             ss.bind(address);
             System.out.print("Сервер начал слушать клиента " + "\nПорт " + ss.getLocalAddress() +
-                    " / Адрес " + InetAddress.getLocalHost( ) + ".\nОжидаем подключения клиента ");
+                    " / Адрес " + InetAddress.getLocalHost( ) + ".\nОжидаем подключения клиента\n ");
             Socket incoming = ss.accept( ).socket();
             System.out.println(incoming + " подключился к серверу.");
             ServerConnection sc = new ServerConnection(navigator, incoming);

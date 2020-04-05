@@ -1,6 +1,6 @@
 package server.armory;
 
-import common.manager.DataExchangeWithClient;
+import common.generatedClasses.Route;
 import server.commands.*;
 import server.exceptions.NoExecuteScriptInScript;
 import server.receiver.collection.ICollectionManager;
@@ -30,25 +30,25 @@ public class Driver {
      * Поле словарь, где ключом является название команды, а значением - объект соответствующей команды
      */
     private HashMap<String, Command> man = new HashMap( );
-
+    private HashMap<String, String> available = new HashMap<>();
 
     public Driver ( ) {
         this.arrayDeque = new ArrayDeque<>( );
-        registerCommand((Command) new AddCommand( ));
-//        registerCommand(new ClearCommand( ));
+        registerCommand(new AddCommand( ));
+        registerCommand(new ClearCommand( ));
 //        registerCommand(new ExecuteScriptCommand( ));
 //        registerCommand(new ExitCommand( ));
 //        registerCommand(new FilterLessThanDistanceCommand( ));
-//        registerCommand(new HelpCommand( ));
+        registerCommand(new HelpCommand( ));
 //        registerCommand(new HistoryCommand( ));
-//        registerCommand(new InfoCommand( ));
+        registerCommand(new InfoCommand( ));
 //        registerCommand(new LoadCommand( ));
 //        registerCommand(new PrintAscendingCommand( ));
 //        registerCommand(new RemoveByIdCommand( ));
 //        registerCommand(new RemoveGreaterCommand( ));
 //        registerCommand(new RemoveLowerCommand( ));
 //        registerCommand(new SaveCommand( ));
-//        registerCommand(new ShowCommand( ));
+        registerCommand(new ShowCommand( ));
 //        registerCommand(new SumOfDistanceCommand( ));
 //        registerCommand(new UpdateIdCommand( ));
 
@@ -62,6 +62,7 @@ public class Driver {
 
     private void registerCommand (Command command) {
         man.put(command.getName( ), command);
+        available.put(command.getName(), command.getArg());
     }
 
     /**
@@ -71,12 +72,12 @@ public class Driver {
      * @param line
      * @throws NoExecuteScriptInScript ошибка возникает, если в скрипте будет команда вызова скрипта
      */
-    public void execute (DataExchangeWithClient dataExchangeWithClient, ICollectionManager icm, String line, String arg) throws NoExecuteScriptInScript {
+    public void execute (DataExchangeWithClient dataExchangeWithClient, ICollectionManager icm, String line, String arg, Route route) throws NoExecuteScriptInScript {
         Command command = man.get(line);
         if (command == null) {
             dataExchangeWithClient.sendToClient("Неверное имя команды : " + line);
         } else {
-            command.execute(dataExchangeWithClient, icm, arg);
+            command.execute(dataExchangeWithClient, icm, arg, route);
             addHisrory(line);
         }
     }
@@ -106,4 +107,7 @@ public class Driver {
         return arrayDeque;
     }
 
+    public HashMap<String, String> getAvailable ( ) {
+        return available;
+    }
 }

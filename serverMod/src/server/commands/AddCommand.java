@@ -1,13 +1,9 @@
 package server.commands;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import common.converters.GsonZonedDateTimeConverter;
 import common.generatedClasses.Route;
-import common.manager.DataExchangeWithClient;
+import server.armory.DataExchangeWithClient;
 import server.receiver.collection.ICollectionManager;
 
-import java.time.ZonedDateTime;
 
 /**
  * Класс-команда add со свойствами <b>name</b>, <b>description</b>, <b>navigator</b>
@@ -24,19 +20,24 @@ public class AddCommand implements Command {
     /**
      * Поле описание команды
      */
-    private final String description = " - добавить новый элемент в коллекцию";
+    private final String description = " - добавить новый элемент в коллекцию (требуется ввод объекта коллекции)";
+
+    private String arg = "e";
+
+    @Override
+    public String toString ( ) {
+        return name + " " + description;
+    }
 
     /**
      * Метод, передающий выполнение команды приемнику
      */
 
 
+
     @Override
-    public void execute(DataExchangeWithClient dataExchangeWithClient, ICollectionManager icm, String arg) {
+    public void execute(DataExchangeWithClient dataExchangeWithClient, ICollectionManager icm, String arg, Route route) {
         try {
-            dataExchangeWithClient.sendToClient("Вы можете начать ввод объекта");
-            Gson gson = new GsonBuilder().registerTypeAdapter(ZonedDateTime.class, new GsonZonedDateTimeConverter()).setPrettyPrinting().create();
-            Route route = gson.fromJson(dataExchangeWithClient.getFromClient(), Route.class);
             icm.add(route);
             dataExchangeWithClient.sendToClient("Объект " + route.getName() + " успешно добавлен в коллекцию!");
         }catch (ClassCastException e){
@@ -50,6 +51,7 @@ public class AddCommand implements Command {
      * @return description возвращает описание команды
      */
 
+    @Override
     public String getDescription() {
         return description;
     }
@@ -60,11 +62,13 @@ public class AddCommand implements Command {
      * @return name возвращает имя команды
      */
 
+    @Override
     public String getName() {
         return name;
     }
 
-
+    @Override
+    public String getArg() {return arg;}
 }
 
 

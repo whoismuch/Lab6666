@@ -1,4 +1,4 @@
-package common.manager;
+package server.armory;
 
 import java.io.*;
 import java.net.Socket;

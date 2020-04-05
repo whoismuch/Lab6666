@@ -5,7 +5,6 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonSerializationContext;
 import common.command.CommandDescription;
-import common.converters.CommandDescriptionConverter;
 import common.converters.GsonZonedDateTimeConverter;
 import common.generatedClasses.Route;
 
@@ -19,36 +18,35 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
 import java.time.ZonedDateTime;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 
 
 public class ClientProviding {
 
-    private static Scanner fromKeyboard;
-    private ByteBuffer f;
-    private SocketChannel s;
     private DataExchangeWithServer dataExchangeWithServer;
-//    private static ObjectOutputStream toServer;
-//    private static ObjectInputStream fromServer;
     private SocketAddress outcoming;
-    //private SocketChannel outcomingchanell;
-    //private ByteBuffer f;
     private UserManager userManager;
+    Gson gson = new GsonBuilder().setPrettyPrinting().create();
+    Gson routeGson = new GsonBuilder().setPrettyPrinting().registerTypeAdapter(ZonedDateTime.class, new GsonZonedDateTimeConverter()).create();
+
 
     /**
      * Устанавливает активное соединение с сервером.
      */
     public void clientWork ( ) throws IOException {
         try (Scanner scanner = new Scanner(System.in)) {
-            userManager = new UserManager(scanner, new BufferedWriter(new OutputStreamWriter(System.out, StandardCharsets.UTF_8)), true);
             outcoming = new InetSocketAddress("localhost", 8800 );
             while (true) {
                 try (SocketChannel outcomingchanell = SocketChannel.open(outcoming)) {
                     dataExchangeWithServer = new DataExchangeWithServer(outcomingchanell);
-                        clientLaunch( );
-                        userManager.write("Завершение программы.");
+                    userManager = new UserManager(scanner, new BufferedWriter(new OutputStreamWriter(System.out, StandardCharsets.UTF_8)), true, gson.fromJson(dataExchangeWithServer.getFromServer(), HashMap.class));
+                    clientLaunch( );
+                    userManager.write("Завершение программы.");
                 } catch (IOException e) {
-                    userManager.write("Нет связи с сервером. Подключться ещё раз (введите {да} или {нет})?");
+                    userManager.writeln("Нет связи с сервером. Подключться ещё раз (введите {да} или {нет})?");
                     String answer;
                     while (!(answer = userManager.read( )).equals("да")) {
                         switch (answer) {
@@ -61,7 +59,7 @@ public class ClientProviding {
                                 userManager.write("Введите корректный ответ.");
                         }
                     }
-                    userManager.write("Подключение ...");
+                    userManager.writeln("Подключение ...");
                     continue;
                 }
             }
@@ -70,35 +68,38 @@ public class ClientProviding {
 
 
     public void clientLaunch ( ) throws IOException {
-            userManager.write(dataExchangeWithServer.getFromServer());
-            String line;
-            while (!(line = userManager.read( )).equals("exit")) {
-                line = line.trim( );
-                String commandname = line;
-                String arg = null;
-                if (line.indexOf(" ") !=-1) {
+        userManager.writeln(dataExchangeWithServer.getFromServer());
+
+        String line = "check";
+        while (!line.equals("exit")) {
+            userManager.write("Введите команду: ");
+            line = userManager.read();
+            line = line.trim( );
+            String commandname = line;
+            String arg = null;
+            if (line.indexOf(" ") !=-1) {
                     commandname = line.substring(0, line.indexOf(" "));
                     arg = (line.substring(line.indexOf(" "))).trim( );
-                }
-                CommandDescription command;
-                if (arg == null) {
-                    command = new CommandDescription(commandname, "null");
-                } else {
-                    command = new CommandDescription(commandname, arg);
-                }
+            }
 
-                    Gson commandGson = new GsonBuilder( ).setPrettyPrinting( ).registerTypeAdapter(CommandDescription.class, new CommandDescriptionConverter( )).create( );
-                    //System.out.println(gson.fromJson(gson.toJson(command),CommandDescription.class));
+            if (!userManager.checkCommandName(commandname)) {
+                continue;
+            }
+            if (!userManager.checkArg(commandname, arg)) {
+                continue;
+            }
 
-                    System.out.println(commandGson.toJson(command));
-                    dataExchangeWithServer.sendToServer(commandGson.toJson(command));
-                    String flag = dataExchangeWithServer.getFromServer();
-                    System.out.println(flag);
-                    if (flag.equals("Вы можете начать ввод объекта")) {
-                        Route route = userManager.readRoute( );
-                        Gson routeGson = new GsonBuilder( ).registerTypeAdapter(ZonedDateTime.class, new GsonZonedDateTimeConverter( )).setPrettyPrinting( ).create( );
-                        dataExchangeWithServer.sendToServer(routeGson.toJson(route));
-                    }
-                }
+            CommandDescription command;
+            if (userManager.checkElement(commandname)) {
+                Route route = userManager.readRoute( );
+                command = new CommandDescription(commandname, arg, route);
+            }
+            else {command = new CommandDescription(commandname, arg, null);}
+
+            dataExchangeWithServer.sendToServer(routeGson.toJson(command));
+
+            userManager.writeln(dataExchangeWithServer.getFromServer());
+
+        }
     }
 }

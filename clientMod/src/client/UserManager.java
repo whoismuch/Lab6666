@@ -6,6 +6,7 @@ import common.generatedClasses.*;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
+import java.util.HashMap;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 
@@ -14,10 +15,13 @@ public class UserManager {
     private static Scanner scanner;
     private boolean manualInput;
 
-    public UserManager(Scanner scanner, Writer writer, boolean manualInput) {
+    private HashMap<String,String> available = new HashMap<>();
+
+    public UserManager(Scanner scanner, Writer writer, boolean manualInput, HashMap<String,String> available) {
         this.writer = writer;
         this.scanner = scanner;
         this.manualInput = manualInput;
+        this.available = available;
     }
 
     /**
@@ -153,6 +157,49 @@ public class UserManager {
             writeln("Это значение  вам не Long");
             return false;
         }
+    }
+
+    public boolean checkCommandName(String command){
+        if ((available.get(command) == null)) {
+            writeln("Неверное имя команды: " + command);
+            writeln("Введите 'help', чтобы получить список доступных команд");
+            return false;
+        }
+        return true;
+    }
+
+    public boolean checkElement(String command) {
+        return (available.get(command).endsWith("e"));
+    }
+
+    public boolean checkArg(String command, String arg) {
+        String trueArg = available.get(command);
+        if (!trueArg.equals("null") && !trueArg.equals("e") && arg == null) {
+            writeln("А где аргумент? \n Попробуйте, позязя, еще раз");
+            return false;
+        }
+        if ((trueArg.equals("null") || trueArg.equals("e")) && arg != null) {
+                writeln("И зачем аргумент? Вы понимаете, что наделали?");
+                return false;
+        }
+        if (trueArg.startsWith("F")) {
+                try {
+                    Float.parseFloat(arg);
+                    return true;
+                } catch (NumberFormatException e) {
+                    writeln("Мне жаль, но аргумент должен быть Float");
+                    return false;
+                }
+        }
+        if (trueArg.startsWith("L")) {
+                try {
+                    Long.parseLong(arg);
+                    return true;
+                } catch (NumberFormatException e) {
+                    writeln("Мне жаль, но аргумент должен быть Long");
+                }
+        }
+        return true;
     }
 
     /**

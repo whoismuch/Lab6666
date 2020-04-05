@@ -3,21 +3,20 @@ package server.armory;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import common.command.CommandDescription;
-import common.manager.DataExchangeWithClient;
-import server.commands.Command;
-import common.converters.CommandDescriptionConverter;
+import common.converters.GsonZonedDateTimeConverter;
 import server.receiver.collection.Navigator;
 
 import java.io.*;
 import java.net.Socket;
-import java.util.HashMap;
+import java.time.ZonedDateTime;
 
-public class ServerConnection {
+public class ServerConnection<T> {
 
     private Navigator navigator;
     private Socket incoming;
-    private HashMap<String, Command> commands;
     private Driver driver;
+    Gson gson = new GsonBuilder().setPrettyPrinting().create();
+    Gson routeGson = new GsonBuilder().setPrettyPrinting().registerTypeAdapter(ZonedDateTime.class, new GsonZonedDateTimeConverter()).create();
 
     public ServerConnection (Navigator navigator, Socket incoming) {
         driver = new Driver( );
@@ -31,17 +30,17 @@ public class ServerConnection {
              DataInputStream getFromClient = new DataInputStream(incoming.getInputStream( ))) {
 
             DataExchangeWithClient dataExchangeWithClient = new DataExchangeWithClient(getFromClient,sendToClient);
-            dataExchangeWithClient.sendToClient("Соединение установлено.\nВы можете начать ввод команд\n");
-            //sendToClient.writeObject("Соединение установлено.\n Вы можете начать ввод команд \n");
-            Gson gson = new GsonBuilder( ).setPrettyPrinting( ).registerTypeAdapter(CommandDescription.class, new CommandDescriptionConverter( )).create( );
-            CommandDescription command = gson.fromJson(dataExchangeWithClient.getFromClient(), CommandDescription.class);
-            Driver.getLive( ).execute(dataExchangeWithClient, navigator, command.getName( ), command.getArg( ));
+            Driver driver = new Driver();
+            dataExchangeWithClient.sendToClient(gson.toJson(driver.getAvailable()));
+            dataExchangeWithClient.sendToClient("Соединение установлено.\nВы можете начать ввод команд");
+            do {
+                CommandDescription command = routeGson.fromJson(dataExchangeWithClient.getFromClient( ), CommandDescription.class);
+                Driver.getLive( ).execute(dataExchangeWithClient, navigator, command.getName( ), command.getArg( ), command.getRoute( ));
+            } while (!incoming.isClosed());
             System.out.println("пока-пока");
 
         }
-//        catch (ClassNotFoundException e) {
-//            e.printStackTrace( );
-//        }
+
     }
 
 }

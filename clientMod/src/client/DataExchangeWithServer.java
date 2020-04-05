@@ -21,7 +21,6 @@ public class DataExchangeWithServer {
         outcoming = new byte[(message.getBytes(charset).length)];
         outcoming = message.getBytes(charset);
         byteBuffer = ByteBuffer.wrap(outcoming);
-        System.out.println("Затолкали в буффер массив из байтов");
         outcomingchannel.write(byteBuffer);
     }
 

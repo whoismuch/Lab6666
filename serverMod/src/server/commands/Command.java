@@ -1,7 +1,8 @@
 package server.commands;
 
 
-import common.manager.DataExchangeWithClient;
+import common.generatedClasses.Route;
+import server.armory.DataExchangeWithClient;
 import server.receiver.collection.ICollectionManager;
 
 /**
@@ -17,7 +18,7 @@ public interface Command {
      * @param icm
      * @param s
      */
-    void execute (DataExchangeWithClient dataExchangeWithClient, ICollectionManager icm, String arg);
+    void execute (DataExchangeWithClient dataExchangeWithClient, ICollectionManager icm, String arg, Route route);
 
     /**
      * Абстрактный метод для получения описания команды
@@ -30,4 +31,8 @@ public interface Command {
      * @return name имя команды
      */
     String getName ( );
+
+    String getArg ( );
+
+
 }

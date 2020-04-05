@@ -2,6 +2,7 @@ package server.receiver.collection;
 
 
 import com.google.gson.JsonSyntaxException;
+import server.armory.Driver;
 import server.comparators.*;
 import server.exceptions.NoPermissionsException;
 import common.generatedClasses.Route;
@@ -13,6 +14,7 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Класс для работы с коллекцией
@@ -76,9 +78,11 @@ public class Navigator implements ICollectionManager {
      */
     @Override
     public String show() {
-        StringBuilder stringBuilder = new StringBuilder("Элементов в коллекции: " + routeBook.size()).append("\n");
-        routeBook.toList().forEach(x -> stringBuilder.append(x.toString()).append('\n'));
-        return stringBuilder.toString();
+        return Stream.builder().add("Элементов в коллекции: " + routeBook.size()).add(routeBook.toList().stream().map(x -> x.toString()).collect(Collectors.joining("\n"))).build().map(x -> x.toString()).collect(Collectors.joining("\n"));
+        //dataExchange.sendToClient(Driver.getLive().getAllCommands().stream().map(x -> x.toString()).collect(Collectors.joining("\n")));
+//        StringBuilder stringBuilder = new StringBuilder("Элементов в коллекции: " + routeBook.size()).append("\n");
+//        routeBook.toList().forEach(x -> stringBuilder.append(x.toString()).append('\n'));
+//        return stringBuilder.toString();
     }
     /**
      * Генерирует новый id

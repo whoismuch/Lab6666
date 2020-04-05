@@ -1,6 +1,7 @@
 //package server.commands;
 //
-//import server.armory.DataExchange;
+//import common.generatedClasses.Route;
+//import server.armory.DataExchangeWithClient;
 //import server.receiver.collection.ICollectionManager;
 //
 ///**
@@ -14,7 +15,9 @@
 //    /** Поле имя команды */
 //    private final String name = "exit";
 //    /** Поле описание команды */
-//    private final String description = " - завершить программу(без сохранения файла)";
+//    private final String description = " - завершить программу(без аргумента)";
+//
+//    private String arg = "null";
 //
 //    /**
 //     * Конструктор - привязывает команду к приемнику
@@ -28,7 +31,7 @@
 //     */
 //
 //    @Override
-//    public void execute(DataExchange dataExchange, ICollectionManager icm, String arg) {
+//    public void execute(DataExchangeWithClient dataExchangeWithClient, ICollectionManager icm, String arg, Route ) {
 //        System.out.println("Завершаю работу...");
 //    }
 //

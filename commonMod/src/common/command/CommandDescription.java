@@ -1,13 +1,18 @@
 package common.command;
 
 
+import common.generatedClasses.Route;
+
 public class CommandDescription{
+
     private String name;
     private String arg;
+    private Route route;
 
-    public CommandDescription(String name, String arg) {
+    public CommandDescription(String name, String arg, Route route)  {
         this.setName(name);
         this.setArg(arg);
+        this.route = route;
     }
 
     @Override
@@ -26,6 +31,8 @@ public class CommandDescription{
         return arg;
     }
 
+    public Route getRoute() {return route;}
+
     public void setName(String name) {
         this.name = name;
     }
@@ -33,4 +40,6 @@ public class CommandDescription{
     public void setArg(String arg) {
         this.arg = arg;
     }
+
+    public void setRoute(Route route) {this.route = route;}
 }
