@@ -1,14 +1,8 @@
 package server.commands;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonElement;
-import common.converters.GsonZonedDateTimeConverter;
 import common.generatedClasses.Route;
 import server.armory.DataExchangeWithClient;
 import server.receiver.collection.ICollectionManager;
-
-import java.time.ZonedDateTime;
 
 /**
  * Класс-команда remove_lower со свойствами <b>name</b>, <b>description</b>, <b>navigator</b>

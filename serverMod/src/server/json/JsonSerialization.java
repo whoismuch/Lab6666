@@ -4,7 +4,6 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 import server.exceptions.NoPermissionsException;
 import common.generatedClasses.Route;
-import common.converters.GsonZonedDateTimeConverter;
 import server.receiver.collection.ICollection;
 
 import java.io.*;

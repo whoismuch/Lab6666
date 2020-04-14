@@ -1,8 +1,6 @@
 package client;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.Charset;
@@ -10,35 +8,43 @@ import java.nio.charset.StandardCharsets;
 
 public class DataExchangeWithServer {
     private static SocketChannel outcomingchannel;
-    private Charset charset;
-    private byte[] outcoming;
-    private ByteBuffer byteBuffer;
 
     public DataExchangeWithServer(SocketChannel outcomingchannel){
         this.outcomingchannel = outcomingchannel;
-        charset = StandardCharsets.UTF_8;
     }
 
-    public void sendToServer(String message) throws IOException {
-        outcoming = new byte[(message.getBytes(charset).length)];
-        outcoming = message.getBytes(charset);
-        byteBuffer = ByteBuffer.wrap(outcoming);
-        outcomingchannel.write(byteBuffer);
+    public void sendToServer(Object object) throws IOException {
+
+       ByteArrayOutputStream baos = new ByteArrayOutputStream();
+       ObjectOutputStream oos = new ObjectOutputStream(baos);
+       oos.writeObject(object);
+
+       byte[] outcoming = baos.toByteArray();
+       ByteBuffer byteBuf = ByteBuffer.wrap(outcoming);
+       outcomingchannel.write(byteBuf);
+       byteBuf.clear();
+       baos.flush();
     }
 
-    public String getFromServer() throws IOException {
+    public Object getFromServer()  {
+        try  {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        byteBuffer = ByteBuffer.allocate(5000);
-        while (outcomingchannel.read(byteBuffer) > 0) {
+        ByteBuffer byteBuffer = ByteBuffer.allocate(5);
+        int n = 0;
+        while ((n = outcomingchannel.read(byteBuffer)) > 0) {
             byteBuffer.flip();
-            while (byteBuffer.hasRemaining()) {
-                byte b = byteBuffer.get();
-                System.out.println((char) b);
-                baos.write(b);
-            }
+            baos.write(byteBuffer.array(), 0, n);
         }
-        String message = new String(baos.toByteArray(), charset);
-       // System.out.println(message );
-        return message.trim( );
+        ByteArrayInputStream bios = new ByteArrayInputStream(baos.toByteArray());
+        ObjectInputStream ois = new ObjectInputStream(bios);
+        return ois.readObject();
+        }
+        catch (IOException e) {
+            e.printStackTrace( );
+            return null;
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace( );
+            return null;
+        }
     }
 }

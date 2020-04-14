@@ -1,6 +1,8 @@
 package common.generatedClasses;
 
 
+import java.io.Serializable;
+
 /**
  * Класс текущих координат со свойствами <b>x</b>, <b>y</b>
  *
@@ -8,7 +10,7 @@ package common.generatedClasses;
  * @version final
  */
 
-public class Coordinates {
+public class Coordinates implements Serializable {
     /** Поле текущая координата x */
     private Long x;
     /** Поле текущая координата y */

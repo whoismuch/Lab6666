@@ -3,7 +3,9 @@ package common.command;
 
 import common.generatedClasses.Route;
 
-public class CommandDescription{
+import java.io.Serializable;
+
+public class CommandDescription implements Serializable {
 
     private String name;
     private String arg;

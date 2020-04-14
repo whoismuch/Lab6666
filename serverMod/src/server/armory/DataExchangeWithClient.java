@@ -2,45 +2,44 @@ package server.armory;
 
 import java.io.*;
 import java.net.Socket;
+import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.Scanner;
 
 public class DataExchangeWithClient {
 
-    private DataInputStream getFromClient;
-    private DataOutputStream sendToClient;
-    private byte[] local;
-    private Charset charset;
+    private Socket incoming;
 
-
-    public DataExchangeWithClient (DataInputStream getFromClient, DataOutputStream sendToClient) {
-        this.getFromClient = getFromClient;
-        this.sendToClient = sendToClient;
-        charset = Charset.forName("UTF-8");
+    public DataExchangeWithClient (Socket incoming) {
+       this.incoming = incoming;
     }
 
 
-
-
-    public void sendToClient (String message) {
+    public void sendToClient (Object message)  {
         try {
-            local = message.getBytes(charset);
-            System.out.println(message );
-            sendToClient.write(local);
+
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ObjectOutputStream send = new ObjectOutputStream(baos);
+            send.writeObject(message);
+            byte[] outcoming = baos.toByteArray();
+            incoming.getOutputStream().write(outcoming);
+            send.flush();
+            baos.flush();
         } catch (IOException e) {
             e.printStackTrace( );
         }
     }
 
-    public String getFromClient (){
+    public Object getFromClient () {
         try {
-            local = new byte[5000];
-            getFromClient.read(local);
-            String message = new String(local, charset);
-            return message.trim();
+            ObjectInputStream get = new ObjectInputStream(incoming.getInputStream());
+            return  get.readObject();
         } catch (IOException e) {
             e.printStackTrace( );
-            return  "Ой-Ой-Ой";
+            return null;
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace( );
+            return null;
         }
     }
 

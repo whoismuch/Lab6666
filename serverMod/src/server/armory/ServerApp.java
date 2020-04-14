@@ -4,6 +4,8 @@ import server.receiver.collection.Navigator;
 import server.receiver.collection.RouteBook;
 
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.*;
 import java.nio.channels.ServerSocketChannel;
 import java.util.Scanner;
@@ -27,13 +29,11 @@ public class ServerApp {
                         " / Адрес " + InetAddress.getLocalHost( ) + ".\nОжидаем подключения клиента\n ");
             String path = "serverMod/routes.json";
             ss.socket().setSoTimeout(60000);
-            while (true) {
-                System.out.println(1);
-                Socket incoming = ss.socket( ).accept( );
-                System.out.println(incoming + " подключился к серверу.");
-                ServerConnection sc = new ServerConnection(navigator, incoming, path);
-                sc.serverWork( );
-            }
+            Socket incoming = (ss.accept()).socket();
+            System.out.println(incoming + " подключился к серверу.");
+
+            ServerConnection sc = new ServerConnection(navigator, incoming, path);
+            sc.serverWork( );
 
             } catch (UnknownHostException e) {
                 e.printStackTrace( );

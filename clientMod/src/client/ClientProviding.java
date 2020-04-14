@@ -1,30 +1,18 @@
 package client;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonSerializationContext;
-import com.google.gson.internal.bind.util.ISO8601Utils;
 import com.google.gson.reflect.TypeToken;
 import common.command.CommandDescription;
-import common.converters.GsonZonedDateTimeConverter;
 import common.generatedClasses.Route;
 
 import java.io.*;
 import java.lang.reflect.Type;
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.Socket;
 import java.net.SocketAddress;
-import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
-import java.time.ZonedDateTime;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.Scanner;
 
 
@@ -36,9 +24,6 @@ public class ClientProviding {
     private Selector selector;
     private Selector sel;
     private String commandname;
-    Gson gson = new GsonBuilder().setPrettyPrinting().create();
-    Gson routeGson = new GsonBuilder().setPrettyPrinting().registerTypeAdapter(ZonedDateTime.class, new GsonZonedDateTimeConverter()).create();
-
 
     /**
      * Устанавливает активное соединение с сервером.
@@ -56,7 +41,7 @@ public class ClientProviding {
                     outcomingchanell.register(sel, SelectionKey.OP_WRITE);
                     Type mapType = new TypeToken<HashMap<String, String>>(){}.getType();
                     selector.select( );
-                    userManager = new UserManager(scanner, new BufferedWriter(new OutputStreamWriter(System.out, StandardCharsets.UTF_8)), true, gson.fromJson(dataExchangeWithServer.getFromServer( ), mapType));
+                    userManager = new UserManager(scanner, new BufferedWriter(new OutputStreamWriter(System.out, StandardCharsets.UTF_8)), true, (HashMap) dataExchangeWithServer.getFromServer( ));
                     clientLaunch( );
                     userManager.write("Завершение программы.");
                     System.exit(0);
@@ -116,10 +101,10 @@ public class ClientProviding {
                 }
 
                 sel.select( );
-                dataExchangeWithServer.sendToServer(routeGson.toJson(command));
+                dataExchangeWithServer.sendToServer(command);
 
                 selector.select( );
-                userManager.writeln(dataExchangeWithServer.getFromServer( ));
+                userManager.writeln(dataExchangeWithServer.getFromServer( ).toString());
 
             }
         }

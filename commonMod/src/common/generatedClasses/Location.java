@@ -1,6 +1,7 @@
 package common.generatedClasses;
 
 
+import java.io.Serializable;
 import java.util.Objects;
 
 /**
@@ -11,7 +12,7 @@ import java.util.Objects;
  */
 
 
-public class Location {
+public class Location implements Serializable {
     /** Поле координата x местоположения */
     private long x;
     /** Поле координата y местоположения */

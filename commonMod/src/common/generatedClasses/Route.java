@@ -1,5 +1,6 @@
 package common.generatedClasses;
 
+import java.io.Serializable;
 import java.time.ZonedDateTime;
 import java.util.Objects;
 
@@ -9,7 +10,7 @@ import java.util.Objects;
  * @author Саня Малета и Хумай Байрамова
  * @version final
  */
-public class Route implements Comparable<Route> {
+public class Route implements Comparable<Route>, Serializable {
     /** Поле имя маршрута */
     private String name; //Поле не может быть null, Строка не может быть пустой
     /** Поле уникальный номер маршрута */

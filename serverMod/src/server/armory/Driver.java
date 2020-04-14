@@ -108,7 +108,6 @@ public class Driver {
     }
 
     public HashMap<String, String> getAvailable ( ) {
-        System.out.println(available);
         return available;
     }
 

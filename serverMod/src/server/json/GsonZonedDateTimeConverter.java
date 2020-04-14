@@ -1,4 +1,4 @@
-package common.converters;
+package server.json;
 
 import com.google.gson.*;
 
