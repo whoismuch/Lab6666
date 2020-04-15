@@ -2,6 +2,7 @@ package server.commands;
 
 import common.generatedClasses.Route;
 import server.armory.DataExchangeWithClient;
+import server.armory.Driver;
 import server.receiver.collection.ICollectionManager;
 
 
@@ -36,7 +37,7 @@ public class AddCommand implements Command {
 
 
     @Override
-    public void execute(DataExchangeWithClient dataExchangeWithClient, ICollectionManager icm, String arg, Route route) {
+    public void execute(DataExchangeWithClient dataExchangeWithClient, ICollectionManager icm, String arg, Route route, Driver driver) {
         try {
             icm.add(route);
             dataExchangeWithClient.sendToClient("Объект " + route.getName() + " успешно добавлен в коллекцию!");

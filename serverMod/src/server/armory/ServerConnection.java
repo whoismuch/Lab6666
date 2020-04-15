@@ -32,7 +32,7 @@ public class ServerConnection<T> {
                 boolean flag = false;
                 CommandDescription command = (CommandDescription) dataExchangeWithClient.getFromClient();
                 if (command.getName( ).equals("exit")) flag = true;
-                Driver.getLive( ).execute(dataExchangeWithClient, navigator, command.getName( ), command.getArg( ), command.getRoute( ));
+                driver.execute(dataExchangeWithClient, navigator, command.getName( ), command.getArg( ), command.getRoute( ), driver);
                 if (flag) break;
             }
 

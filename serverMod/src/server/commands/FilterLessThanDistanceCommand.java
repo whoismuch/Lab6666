@@ -3,6 +3,7 @@ package server.commands;
 
 import common.generatedClasses.Route;
 import server.armory.DataExchangeWithClient;
+import server.armory.Driver;
 import server.receiver.collection.ICollectionManager;
 
 import java.util.stream.Collectors;
@@ -34,7 +35,7 @@ public class FilterLessThanDistanceCommand implements Command {
      */
 
     @Override
-    public void execute(DataExchangeWithClient dataExchangeWithClient, ICollectionManager icm, String arg, Route route) {
+    public void execute(DataExchangeWithClient dataExchangeWithClient, ICollectionManager icm, String arg, Route route, Driver driver) {
         Float distance = Float.parseFloat(arg);
         dataExchangeWithClient.sendToClient(distance < 1 ? "Аргумент должен быть больше 1, мы разве не предупредили?" : icm.filterLessThanDistance(distance).isEmpty( ) ? "ой, а таких элементов-то и нет :(" : icm.filterLessThanDistance(distance).stream( ).map(x -> x.toString( )).collect(Collectors.joining("\n")));
     }

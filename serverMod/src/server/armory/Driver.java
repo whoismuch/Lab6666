@@ -18,13 +18,7 @@ import java.util.stream.Collectors;
  * @version final
  */
 public class Driver {
-    private static Driver driver;
     private ArrayDeque<String> arrayDeque;
-
-    public static Driver getLive ( ) {
-        if (driver == null) driver = new Driver( );
-        return driver;
-    }
 
     /**
      * Поле словарь, где ключом является название команды, а значением - объект соответствующей команды
@@ -54,6 +48,7 @@ public class Driver {
 
     }
 
+
     /**
      * Метод, регистрирующий доступные команды в словаре команд
      *
@@ -72,12 +67,12 @@ public class Driver {
      * @param line
      * @throws NoExecuteScriptInScript ошибка возникает, если в скрипте будет команда вызова скрипта
      */
-    public void execute (DataExchangeWithClient dataExchangeWithClient, ICollectionManager icm, String line, String arg, Route route) throws NoExecuteScriptInScript {
+    public void execute (DataExchangeWithClient dataExchangeWithClient, ICollectionManager icm, String line, String arg, Route route, Driver driver) throws NoExecuteScriptInScript {
         Command command = man.get(line);
         if (command == null) {
             dataExchangeWithClient.sendToClient("Неверное имя команды : " + line);
         } else {
-            command.execute(dataExchangeWithClient, icm, arg, route);
+            command.execute(dataExchangeWithClient, icm, arg, route, driver);
             addHisrory(line);
         }
     }
@@ -112,10 +107,10 @@ public class Driver {
     }
 
     public void load(DataExchangeWithClient dataExchangeWithClient, ICollectionManager icm, String path) {
-        (new LoadCommand()).execute(dataExchangeWithClient, icm, path, null);
+        (new LoadCommand()).execute(dataExchangeWithClient, icm, path, null, this);
     }
 
     public void save(DataExchangeWithClient dataExchangeWithClient, ICollectionManager icm, String path) {
-        (new SaveCommand()).execute(dataExchangeWithClient, icm, path, null);
+        (new SaveCommand()).execute(dataExchangeWithClient, icm, path, null, this);
     }
 }

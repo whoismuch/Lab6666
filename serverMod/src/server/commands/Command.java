@@ -3,6 +3,7 @@ package server.commands;
 
 import common.generatedClasses.Route;
 import server.armory.DataExchangeWithClient;
+import server.armory.Driver;
 import server.receiver.collection.ICollectionManager;
 
 /**
@@ -15,10 +16,10 @@ public interface Command {
 
     /**
      * Абстрактный метод для выполнения команды
-     * @param icm
      * @param s
+     * @param icm
      */
-    void execute (DataExchangeWithClient dataExchangeWithClient, ICollectionManager icm, String arg, Route route);
+    void execute (DataExchangeWithClient dataExchangeWithClient, ICollectionManager icm, String arg, Route route, Driver driver);
 
     /**
      * Абстрактный метод для получения описания команды

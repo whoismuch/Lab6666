@@ -22,9 +22,8 @@ public class ClientProviding {
     private SocketAddress outcoming;
     private UserManager userManager;
     private Selector selector;
-    private Selector sel;
     private String commandname;
-
+    private SocketChannel outcomingchannel;
     /**
      * Устанавливает активное соединение с сервером.
      */
@@ -32,14 +31,15 @@ public class ClientProviding {
         try (Scanner scanner = new Scanner(System.in)) {
             outcoming = new InetSocketAddress("localhost", 8443);
             while (true) {
-                try (SocketChannel outcomingchanell = SocketChannel.open(outcoming)) {
-                    dataExchangeWithServer = new DataExchangeWithServer(outcomingchanell);
+                try (SocketChannel outcomingchannel = SocketChannel.open(outcoming)) {
+
+                    this.outcomingchannel = outcomingchannel;
+                    dataExchangeWithServer = new DataExchangeWithServer(outcomingchannel);
+
                     selector = Selector.open( );
-                    sel = Selector.open( );
-                    outcomingchanell.configureBlocking(false);
-                    outcomingchanell.register(selector, SelectionKey.OP_READ);
-                    outcomingchanell.register(sel, SelectionKey.OP_WRITE);
-                    Type mapType = new TypeToken<HashMap<String, String>>(){}.getType();
+                    outcomingchannel.configureBlocking(false);
+                    outcomingchannel.register(selector, SelectionKey.OP_READ);
+
                     selector.select( );
                     userManager = new UserManager(scanner, new BufferedWriter(new OutputStreamWriter(System.out, StandardCharsets.UTF_8)), true, (HashMap) dataExchangeWithServer.getFromServer( ));
                     clientLaunch( );
@@ -70,8 +70,6 @@ public class ClientProviding {
 
 
         public void clientLaunch () throws IOException {
-//            selector.select( );
-//            userManager.writeln(dataExchangeWithServer.getFromServer( ));
 
             String line = "check";
             while (!line.equals("exit")) {
@@ -100,9 +98,11 @@ public class ClientProviding {
                     command = new CommandDescription(commandname, arg, null);
                 }
 
-                sel.select( );
+                outcomingchannel.register(selector, SelectionKey.OP_WRITE);
+                selector.select();
                 dataExchangeWithServer.sendToServer(command);
 
+                outcomingchannel.register(selector, SelectionKey.OP_READ);
                 selector.select( );
                 userManager.writeln(dataExchangeWithServer.getFromServer( ).toString());
 

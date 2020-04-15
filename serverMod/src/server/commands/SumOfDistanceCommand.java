@@ -2,6 +2,7 @@ package server.commands;
 
 import common.generatedClasses.Route;
 import server.armory.DataExchangeWithClient;
+import server.armory.Driver;
 import server.receiver.collection.ICollectionManager;
 
 /**
@@ -33,7 +34,7 @@ public class SumOfDistanceCommand implements Command {
     }
 
     @Override
-    public void execute(DataExchangeWithClient dataExchangeWithClient, ICollectionManager icm, String arg, Route route) {
+    public void execute(DataExchangeWithClient dataExchangeWithClient, ICollectionManager icm, String arg, Route route, Driver driver) {
         if (icm.size() == 0) {
             dataExchangeWithClient.sendToClient("Коллекция пуста");
         } else {
