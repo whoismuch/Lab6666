@@ -2,7 +2,7 @@ package server.json;
 
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
-import server.exceptions.NoPermissionsException;
+import common.exceptions.NoPermissionsException;
 import common.generatedClasses.Route;
 import server.receiver.collection.ICollection;
 

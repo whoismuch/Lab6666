@@ -1,11 +1,11 @@
 package client;
 
 import common.exceptions.NoCorrectInputException;
+import common.exceptions.NoPermissionsException;
 import common.generatedClasses.*;
 
-import java.io.IOException;
-import java.io.Reader;
-import java.io.Writer;
+import java.io.*;
+import java.nio.CharBuffer;
 import java.util.HashMap;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
@@ -60,9 +60,6 @@ public class UserManager {
      *
      * @return Есть ли ещё что считывать.
      */
-    public boolean hasNextLine() {
-        return scanner.hasNextLine();
-    }
 
     public Route readRoute() throws NoSuchElementException {
         String name;
@@ -70,30 +67,30 @@ public class UserManager {
             name = readString("Введите название маршрута: ", false);
         } while (name.isEmpty());
         Coordinates coordinates = readCoordinates();
-        Location to = readLocationTo();
         Location from = readLocationFrom();
+        Location to = readLocationTo();
         Float distance = parseFloatInputWithParameters("Введите длину маршрута больше 1: ", 1.0f, Float.POSITIVE_INFINITY);
         return new Route(name, coordinates, from, to, distance);
     }
 
-    public Location readLocationTo() {
+    public Location readLocationFrom() {
         String name = readString("Введите название места отправления: ", true);
         Long x = parseLongInput("Введите координату места отправления x (Long): ");
         Long y = parseLongInput("Введите координату места отправления y (Long): ");
-        return new Location(x, y, name);
+        return new Location(name, x, y);
     }
 
-    public Location readLocationFrom(){
+    public Location readLocationTo(){
         String name = readString("Введите название места прибытия: ", true);
         Long x = parseLongInput("Введите координату места прибытия x (Long): ");
         Long y = parseLongInput("Введите координату места прибытия y (Long): ");
-        return new Location(x, y, name);
+        return new Location(name, x, y);
     }
 
 
     public Coordinates readCoordinates() {
         Long x = parseLongInput("Введите текущую координату местанахождения x (Long): ");
-        Integer y = parseIntInput("Введите текущую координату местанахождения y (int): ");
+        int y = parseIntInput("Введите текущую координату местанахождения y (int): ");
         return new Coordinates(x, y);
     }
 
@@ -167,9 +164,64 @@ public class UserManager {
         return true;
     }
 
+    public boolean checkCommandNameForScript(String command) {
+        if ((available.get(command) == null)) {
+            return false;
+        }
+        return true;
+    }
+
     public boolean checkElement(String command) {
         return (available.get(command).endsWith("e"));
     }
+
+    public boolean checkFieldsForScript(Scanner scanner) {
+        try {
+            String name = scanner.nextLine( );
+            Long x = Long.parseLong(scanner.nextLine( ));
+            int y = Integer.parseInt(scanner.nextLine( ));
+            String nameFrom = scanner.nextLine( );
+            Long xFrom = Long.parseLong(scanner.nextLine( ));
+            Long yFrom = Long.parseLong(scanner.nextLine( ));
+            String nameTo = scanner.nextLine( );
+            Long xTo = Long.parseLong(scanner.nextLine( ));
+            Long yTo = Long.parseLong(scanner.nextLine( ));
+            Float distance = Float.parseFloat(scanner.nextLine( ));
+        } catch (NumberFormatException e) {
+            return false;
+        }
+        return true;
+    }
+
+    public boolean checkFile(String command) { return available.get(command).startsWith("File");}
+
+    public boolean checkArgForScript (String command, String arg) {
+        String trueArg = available.get(command);
+        if (!trueArg.equals("null") && !trueArg.equals("e") && arg == null) {
+            return false;
+        }
+        if ((trueArg.equals("null") || trueArg.equals("e")) && arg != null) {
+            return false;
+        }
+        if (trueArg.startsWith("Float")) {
+            try {
+                Float.parseFloat(arg);
+                return true;
+            } catch (NumberFormatException e) {
+                return false;
+            }
+        }
+        if (trueArg.startsWith("Long")) {
+            try {
+                Long.parseLong(arg);
+                return true;
+            } catch (NumberFormatException e) {
+            }
+        }
+
+        return true;
+    }
+
 
     public boolean checkArg(String command, String arg) {
         String trueArg = available.get(command);
@@ -191,17 +243,97 @@ public class UserManager {
                 }
         }
         if (trueArg.startsWith("Long")) {
-                try {
-                    Long.parseLong(arg);
-                    return true;
-                } catch (NumberFormatException e) {
-                    writeln("Мне жаль, но аргумент должен быть Long");
-                }
+            try {
+                Long.parseLong(arg);
+                return true;
+            } catch (NumberFormatException e) {
+                writeln("Мне жаль, но аргумент должен быть Long");
+            }
         }
+        
         return true;
     }
 
-    /**
+    public  int  checkContentOfFile (String arg) {
+        try {
+            if (arg.equals("")) throw new NullPointerException( );
+            CharArrayReader car = new CharArrayReader(arg.toCharArray( ));
+            Scanner scanner = new Scanner(car);
+            int commandNumber = 0;
+            int stringNumber = 0;
+            while (scanner.hasNextLine( )) {
+                commandNumber += 1;
+                stringNumber += 1;
+                String line = scanner.nextLine( );
+                line = line.trim( );
+                String commandname = line;
+                String argue = null;
+                if (line.contains(" ")) {
+                    commandname = line.substring(0, line.indexOf(" "));
+                    argue = (line.substring(line.indexOf(" "))).trim( );
+                }
+
+                if (!checkCommandNameForScript(commandname) || !checkArgForScript(commandname, argue)) {
+                    writeln("В строке № " + stringNumber + " ошибка");
+                    return 0;
+                }
+
+                if (checkElement(commandname)) {
+                    if (!checkFieldsForScript(scanner)) {
+                        writeln("В строке № " + stringNumber + " ошибка (неправильный ввод объекта в дальнейшем");
+                        return 0;
+                    }
+                }
+
+                if (checkFile(commandname)) {
+                    String x = contentOfFile(arg);
+                    checkContentOfFile(x);
+                }
+            }
+            return commandNumber;
+        } catch (NullPointerException e) {
+            writeln("Эмм, а чоита скрипт пустой?");
+            return 0;
+        }
+    }
+
+
+    public String contentOfFile (String arg) {
+        try {
+            CharArrayWriter caw = new CharArrayWriter( );
+            CharBuffer charBuffer = CharBuffer.allocate(10);
+            File file = new File(arg);
+
+            if (!file.exists( )) throw new FileNotFoundException();
+            else if (!file.canRead( )) throw new NoPermissionsException("бе");
+
+            FileReader fileReader = new FileReader(file);
+            int n = 0;
+            while ((n = fileReader.read(charBuffer)) > 0) {
+                charBuffer.flip( );
+                caw.write(charBuffer.array( ), 0, n);
+            }
+
+            System.out.println(caw.toString( ));
+            return caw.toString( );
+
+
+        } catch (NoPermissionsException e) {
+            writeln("Недостаточно прав для чтения скрипта");
+            return null;
+        } catch (FileNotFoundException e) {
+            writeln("Файла со скриптом по указанному пути не существует");
+            return null;
+        } catch (NullPointerException e) {
+            writeln("Файл пуст!");
+            return null;
+        } catch (IOException e) {
+            writeln("Ой, временные неполадки");
+            return null;
+        }
+    }
+
+        /**
      * Метод парсит в определенном диапазоне
      */
 

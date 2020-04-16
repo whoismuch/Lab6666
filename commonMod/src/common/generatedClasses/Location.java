@@ -26,7 +26,7 @@ public class Location implements Serializable {
      * @param y координата y местоположения
      * @param name имя местоположения
      */
-    public Location(long x, Long y, String name) {
+    public Location(String name, long x, Long y) {
         this.x = x;
         this.y = y;
         this.name = name;

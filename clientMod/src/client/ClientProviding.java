@@ -19,13 +19,14 @@ public class ClientProviding {
     private DataExchangeWithServer dataExchangeWithServer;
     private UserManager userManager;
     private Selector selector;
-    private String commandname;
+    private String commandname = "check";
+    private String arg;
     /**
      * Устанавливает активное соединение с сервером.
      */
     public void clientWork (boolean iBegin) {
         try (Scanner scanner = new Scanner(System.in)) {
-            SocketAddress outcoming = new InetSocketAddress("localhost", 8443);
+            SocketAddress outcoming = new InetSocketAddress("localhost", 8800);
             userManager = new UserManager(scanner,
                     new BufferedWriter(new OutputStreamWriter(System.out, StandardCharsets.UTF_8)),
                     true);
@@ -46,7 +47,6 @@ public class ClientProviding {
                         userManager.setAvailable((HashMap) dataExchangeWithServer.getFromServer());
                         iBegin = false;
                     }
-
 
                     clientLaunch( );
                     exit();
@@ -82,7 +82,7 @@ public class ClientProviding {
             line = userManager.read( );
             line = line.trim( );
             commandname = line;
-            String arg = null;
+            arg = null;
             if (line.indexOf(" ") != -1) {
                 commandname = line.substring(0, line.indexOf(" "));
                 arg = (line.substring(line.indexOf(" "))).trim( );
@@ -91,28 +91,58 @@ public class ClientProviding {
             if (!userManager.checkCommandName(commandname)) {
                 continue;
             }
+
             if (!userManager.checkArg(commandname, arg)) {
                 continue;
             }
 
-            CommandDescription command;
-            if (userManager.checkElement(commandname)) {
-                Route route = userManager.readRoute( );
-                command = new CommandDescription(commandname, arg, route);
-            } else {
-                command = new CommandDescription(commandname, arg, null);
+            if (userManager.checkFile(commandname)) {
+                arg = userManager.contentOfFile(arg);
+                if (arg == null) continue;
+                else {
+                    int commandNumber = userManager.checkContentOfFile(arg);
+                    if (commandNumber == 0) {
+                        System.out.println("Бе, скрипт с ошибочками, такой скрипт мы обработать не сможем\nПожалуй, исправьте скрипт и введите следующую команду");
+                        continue;
+                    }
+                    sendCommand( );
+                    getScriptResult(commandNumber);
+                }
             }
 
-            dataExchangeWithServer.sendToServer(command);
-
-            selector.select( );
-            userManager.writeln(dataExchangeWithServer.getFromServer( ).toString());
+            else {
+                sendCommand();
+                getResult();
+            }
 
         }
-
     }
+
     public void exit() {
             userManager.write("Завершение программы.");
             System.exit(0);
+    }
+
+    public void sendCommand() throws IOException {
+        CommandDescription command;
+        if (userManager.checkElement(commandname)) {
+            Route route = userManager.readRoute( );
+            command = new CommandDescription(commandname, arg, route);
+        } else {
+            command = new CommandDescription(commandname, arg, null);
+        }
+
+        dataExchangeWithServer.sendToServer(command);
+    }
+
+    public void getResult() throws IOException {
+        selector.select( );
+        userManager.writeln(dataExchangeWithServer.getFromServer( ).toString());
+    }
+
+    public void getScriptResult(int commandNumber) throws IOException {
+        for (int i=0; i < commandNumber; i++) {
+            getResult();
+        }
     }
 }

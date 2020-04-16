@@ -23,7 +23,7 @@ public class AddCommand implements Command {
      */
     private final String description = " - добавить новый элемент в коллекцию (требуется ввод объекта коллекции)";
 
-    private String arg = "e";
+    private  String arg = "e";
 
     @Override
     public String toString ( ) {

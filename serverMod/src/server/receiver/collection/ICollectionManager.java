@@ -1,7 +1,7 @@
 package server.receiver.collection;
 
 import com.google.gson.JsonSyntaxException;
-import server.exceptions.NoPermissionsException;
+import common.exceptions.NoPermissionsException;
 import common.generatedClasses.Route;
 
 import java.io.FileNotFoundException;

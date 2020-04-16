@@ -2,7 +2,7 @@ package server.armory;
 
 import common.generatedClasses.Route;
 import server.commands.*;
-import server.exceptions.NoExecuteScriptInScript;
+import common.exceptions.NoExecuteScriptInScript;
 import server.receiver.collection.ICollectionManager;
 
 import java.util.ArrayDeque;
@@ -30,7 +30,7 @@ public class Driver {
         this.arrayDeque = new ArrayDeque<>( );
         registerCommand(new AddCommand( ));
         registerCommand(new ClearCommand( ));
-//        registerCommand(new ExecuteScriptCommand( ));
+        registerCommand(new ExecuteScriptCommand( ));
         registerCommand(new ExitCommand( ));
         registerCommand(new FilterLessThanDistanceCommand( ));
         registerCommand(new HelpCommand( ));
@@ -69,8 +69,12 @@ public class Driver {
      */
     public void execute (SendToClient sendToClient, ICollectionManager icm, String line, String arg, Route route, Driver driver) throws NoExecuteScriptInScript {
         Command command = man.get(line);
-        command.execute(sendToClient, icm, arg, route, driver);
-        addHisrory(line);
+        if (command == null) {
+            sendToClient.send("Неверное имя команды : " + line);
+        } else {
+            command.execute(sendToClient, icm, arg, route, driver);
+            addHisrory(line);
+        }
     }
 
     /**

@@ -4,7 +4,7 @@ import com.google.gson.JsonSyntaxException;
 import common.generatedClasses.Route;
 import server.armory.Driver;
 import server.armory.SendToClient;
-import server.exceptions.NoPermissionsException;
+import common.exceptions.NoPermissionsException;
 import server.receiver.collection.ICollectionManager;
 
 import java.io.FileNotFoundException;

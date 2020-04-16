@@ -22,7 +22,7 @@ public class ServerApp {
         }));
         RouteBook routeBook = new RouteBook( );
         Navigator navigator = new Navigator(routeBook);
-        SocketAddress address = new InetSocketAddress("localhost", 8443);
+        SocketAddress address = new InetSocketAddress("localhost", 8800);
         try (ServerSocketChannel ss = ServerSocketChannel.open( )) {
             ss.bind(address);
             System.out.print("Сервер начал слушать клиента " + "\nПорт " + ss.getLocalAddress( ) +
