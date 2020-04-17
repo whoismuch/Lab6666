@@ -1,5 +1,6 @@
 package server.armory;
 
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.Socket;
@@ -16,6 +17,9 @@ public class GetFromClient {
         try {
             ObjectInputStream get = new ObjectInputStream(incoming.getInputStream());
             return  get.readObject();
+        } catch (EOFException e) {
+            System.out.println("Клиент решил внезапно покинуть нас");
+            return null;
         } catch (IOException e) {
             e.printStackTrace( );
             return null;

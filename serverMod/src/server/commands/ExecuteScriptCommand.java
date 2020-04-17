@@ -74,9 +74,8 @@ public class ExecuteScriptCommand implements Command {
                 String argue = null;
                 if (line.indexOf(" ") != -1) {
                     commandname = line.substring(0, line.indexOf(" "));
-                    arg = (line.substring(line.indexOf(" "))).trim( );
+                    argue = (line.substring(line.indexOf(" "))).trim( );
                 }
-
 
                 if (driver.getAvailable().get(commandname).endsWith("e")) {
                     route = new Route(scanner.nextLine(),
@@ -86,13 +85,10 @@ public class ExecuteScriptCommand implements Command {
 
                 }
 
-                driver.execute(sendToClient, icm, commandname, arg, route, driver);
+                driver.execute(sendToClient, icm, commandname, argue, route, driver);
             }
-            sendToClient.send("Скрипт выполнен");
-        } catch (NoSuchElementException e) {
-            sendToClient.send("Недостаточно введенных данных");
         } catch (NullPointerException e) {
-            sendToClient.send("Файл пуст!");
+            sendToClient.send("Скрипт выполнен");
         }
     }
 

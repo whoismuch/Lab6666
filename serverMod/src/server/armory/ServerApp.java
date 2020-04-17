@@ -22,18 +22,21 @@ public class ServerApp {
         }));
         RouteBook routeBook = new RouteBook( );
         Navigator navigator = new Navigator(routeBook);
-        SocketAddress address = new InetSocketAddress("localhost", 8800);
+        SocketAddress address = new InetSocketAddress("localhost", 8080);
         try (ServerSocketChannel ss = ServerSocketChannel.open( )) {
             ss.bind(address);
             System.out.print("Сервер начал слушать клиента " + "\nПорт " + ss.getLocalAddress( ) +
                     " / Адрес " + InetAddress.getLocalHost( ) + ".\nОжидаем подключения клиента\n ");
            // String path = args[0];
             String path = "serverMod/routes.json";
+            Driver driver = new Driver( );
+            driver.load(null, navigator, path);
             while (true) {
                 Socket incoming = (ss.accept( )).socket( );
                 System.out.println(incoming + " подключился к серверу.");
-                ServerConnection sc = new ServerConnection(navigator, incoming, path);
+                ServerConnection sc = new ServerConnection(driver, navigator, incoming, path);
                 sc.serverWork( );
+                incoming.shutdownOutput();
                 incoming.close();
             }
 

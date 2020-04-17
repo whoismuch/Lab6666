@@ -29,7 +29,7 @@ public class DataExchangeWithServer {
     public Object getFromServer() throws IOException {
         try  {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ByteBuffer byteBuffer = ByteBuffer.allocate(5);
+        ByteBuffer byteBuffer = ByteBuffer.allocate(5000);
         int n = 0;
         while ((n = outcomingchannel.read(byteBuffer)) > 0) {
             byteBuffer.flip();
@@ -39,8 +39,11 @@ public class DataExchangeWithServer {
         ObjectInputStream ois = new ObjectInputStream(bios);
         return ois.readObject();
         } catch (ClassNotFoundException e) {
-            e.printStackTrace( );
+            System.out.println();
+            e.printStackTrace();
             return null;
+        } catch (EOFException e) {
+            throw new IOException();
         }
     }
 }

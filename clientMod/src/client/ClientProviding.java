@@ -1,5 +1,6 @@
 package client;
 
+import com.sun.javaws.IconUtil;
 import common.command.CommandDescription;
 import common.generatedClasses.Route;
 
@@ -21,17 +22,23 @@ public class ClientProviding {
     private Selector selector;
     private String commandname = "check";
     private String arg;
+    private SocketChannel outcommingchannel;
+
     /**
      * Устанавливает активное соединение с сервером.
      */
     public void clientWork (boolean iBegin) {
         try (Scanner scanner = new Scanner(System.in)) {
-            SocketAddress outcoming = new InetSocketAddress("localhost", 8800);
-            userManager = new UserManager(scanner,
-                    new BufferedWriter(new OutputStreamWriter(System.out, StandardCharsets.UTF_8)),
-                    true);
+            SocketAddress outcoming = new InetSocketAddress("localhost", 8080);
+            if (iBegin) {
+                userManager = new UserManager(scanner,
+                        new BufferedWriter(new OutputStreamWriter(System.out, StandardCharsets.UTF_8)),
+                        true);
+            }
             while (true) {
                 try (SocketChannel outcomingchannel = SocketChannel.open(outcoming)) {
+
+                    this.outcommingchannel = outcomingchannel;
 
                     dataExchangeWithServer = new DataExchangeWithServer(outcomingchannel);
 
@@ -40,16 +47,17 @@ public class ClientProviding {
                     outcomingchannel.register(selector, SelectionKey.OP_READ);
 
                     String beginMessage = "I've already got everything :(";
-                    if(iBegin) beginMessage = "I'm ready to get available commands and base collection ";
+                    if (iBegin) beginMessage = "I'm ready to get available commands";
                     dataExchangeWithServer.sendToServer(beginMessage);
                     if (iBegin) {
                         selector.select( );
-                        userManager.setAvailable((HashMap) dataExchangeWithServer.getFromServer());
+                        userManager.setAvailable((HashMap) dataExchangeWithServer.getFromServer( ));
                         iBegin = false;
                     }
 
                     clientLaunch( );
-                    exit();
+
+                    exit( );
                 } catch (IOException e) {
                     if (!commandname.equals("exit")) {
                         userManager.writeln("Нет связи с сервером. Подключиться ещё раз (введите {да} или {нет})?");
@@ -59,7 +67,7 @@ public class ClientProviding {
                                 case "":
                                     break;
                                 case "нет":
-                                    exit();
+                                    exit( );
                                     break;
                                 default:
                                     userManager.write("Введите корректный ответ.");
@@ -67,14 +75,14 @@ public class ClientProviding {
                         }
                         userManager.writeln("Подключение ...");
                         continue;
-                    } else exit();
+                    } else exit( );
                 }
             }
         }
     }
 
 
-    public void clientLaunch () throws IOException {
+    public void clientLaunch ( ) throws IOException {
 
         String line = "check";
         while (!line.equals("exit")) {
@@ -98,32 +106,32 @@ public class ClientProviding {
 
             if (userManager.checkFile(commandname)) {
                 arg = userManager.contentOfFile(arg);
+                userManager.setFinalScript(arg);
                 if (arg == null) continue;
                 else {
-                    int commandNumber = userManager.checkContentOfFile(arg);
+                    int commandNumber = userManager.checkContentOfFile(arg, 0);
                     if (commandNumber == 0) {
                         System.out.println("Бе, скрипт с ошибочками, такой скрипт мы обработать не сможем\nПожалуй, исправьте скрипт и введите следующую команду");
                         continue;
                     }
+                    arg = userManager.getFinalScript( );
                     sendCommand( );
                     getScriptResult(commandNumber);
                 }
-            }
-
-            else {
-                sendCommand();
-                getResult();
+            } else {
+                sendCommand( );
+                getResult( );
             }
 
         }
     }
 
-    public void exit() {
-            userManager.write("Завершение программы.");
-            System.exit(0);
+    public void exit ( ) {
+        userManager.write("Завершение программы.");
+        System.exit(0);
     }
 
-    public void sendCommand() throws IOException {
+    public void sendCommand ( ) throws IOException {
         CommandDescription command;
         if (userManager.checkElement(commandname)) {
             Route route = userManager.readRoute( );
@@ -135,14 +143,38 @@ public class ClientProviding {
         dataExchangeWithServer.sendToServer(command);
     }
 
-    public void getResult() throws IOException {
+    public void getResult ( ) throws IOException {
         selector.select( );
-        userManager.writeln(dataExchangeWithServer.getFromServer( ).toString());
+        userManager.writeln(dataExchangeWithServer.getFromServer( ).toString( ));
+
     }
 
-    public void getScriptResult(int commandNumber) throws IOException {
-        for (int i=0; i < commandNumber; i++) {
-            getResult();
+    public void getScriptResult (int commandNumber) throws IOException {
+        for (int i = 0; i <= commandNumber; i++) {
+            try {
+                getResult( );
+            } catch (IOException e) {
+                lostConnection( );
+                clientWork(false);
+            }
+            System.out.println("\n");
+        }
+    }
+
+    public void lostConnection ( ) {
+        userManager.writeln("Нет связи с сервером. Подключиться ещё раз (введите {да} или {нет})?");
+        String answer;
+        while (!(answer = userManager.read( )).equals("да")) {
+            switch (answer) {
+                case "":
+                    break;
+                case "нет":
+                    exit( );
+                    break;
+                default:
+                    userManager.write("Введите корректный ответ.");
+            }
         }
     }
 }
+

@@ -35,9 +35,7 @@ public class LoadCommand implements Command {
     @Override
     public void execute(SendToClient sendToClient, ICollectionManager icm, String arg, Route route, Driver driver) {
         try {
-            int before = icm.size();
             icm.load(arg);
-            //dataExchangeWithClient.sendToClient(("Добавлено " + (icm.size() - before) + " элементов в коллекцию \n"));
         } catch (NoPermissionsException e) {
             sendToClient.send(e.getMessage());
         } catch (JsonSyntaxException e) {

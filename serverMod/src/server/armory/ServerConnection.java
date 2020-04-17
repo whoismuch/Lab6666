@@ -13,8 +13,8 @@ public class ServerConnection {
     private static Navigator navigator;
     private static String path;
 
-    public ServerConnection (Navigator navigator,Socket incoming, String path) {
-        driver = new Driver( );
+    public ServerConnection (Driver driver, Navigator navigator,Socket incoming, String path) {
+        this.driver = driver;
         this.navigator = navigator;
         this.path = path;
         this.incoming = incoming;
@@ -27,9 +27,9 @@ public class ServerConnection {
         GetFromClient getFromClient = new GetFromClient(incoming);
         SendToClient sendToClient = new SendToClient(incoming);
 
-        if (getFromClient.get().equals("I'm ready to get available commands and base collection ")) {
+        if (getFromClient.get().equals("I'm ready to get available commands")) {
             sendToClient.send(driver.getAvailable( ));
-            driver.load(sendToClient, navigator, path);
+            //driver.load(sendToClient, navigator, path);
         }
 
         CommandDescription command = (CommandDescription) getFromClient.get();

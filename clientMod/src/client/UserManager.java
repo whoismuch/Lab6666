@@ -1,5 +1,6 @@
 package client;
 
+import com.sun.javaws.IconUtil;
 import common.exceptions.NoCorrectInputException;
 import common.exceptions.NoPermissionsException;
 import common.generatedClasses.*;
@@ -14,6 +15,7 @@ public class UserManager {
     private static Writer writer;
     private static Scanner scanner;
     private boolean manualInput;
+    private String finalScript;
 
     private HashMap<String,String> available = new HashMap<>();
 
@@ -254,18 +256,16 @@ public class UserManager {
         return true;
     }
 
-    public  int  checkContentOfFile (String arg) {
+    public  int  checkContentOfFile (String arg, int commandN) {
         try {
             if (arg.equals("")) throw new NullPointerException( );
             CharArrayReader car = new CharArrayReader(arg.toCharArray( ));
             Scanner scanner = new Scanner(car);
-            int commandNumber = 0;
-            int stringNumber = 0;
+            int commandNumber = commandN;
             while (scanner.hasNextLine( )) {
                 commandNumber += 1;
-                stringNumber += 1;
-                String line = scanner.nextLine( );
-                line = line.trim( );
+                String justLine = scanner.nextLine( );
+                String line = justLine.trim( );
                 String commandname = line;
                 String argue = null;
                 if (line.contains(" ")) {
@@ -273,21 +273,29 @@ public class UserManager {
                     argue = (line.substring(line.indexOf(" "))).trim( );
                 }
 
+
                 if (!checkCommandNameForScript(commandname) || !checkArgForScript(commandname, argue)) {
-                    writeln("В строке № " + stringNumber + " ошибка");
+                    writeln("В строке № " + commandNumber + " ошибка");
+                    writeln("Если у вас присутсвуют вложенные скрипты, то нумерация строк выполняется согласно вложенности");
                     return 0;
                 }
 
                 if (checkElement(commandname)) {
                     if (!checkFieldsForScript(scanner)) {
-                        writeln("В строке № " + stringNumber + " ошибка (неправильный ввод объекта в дальнейшем");
+                        writeln("В строке № " + commandNumber + " ошибка (неправильный ввод объекта в дальнейшем)");
+                        writeln("Если у вас присутсвуют вложенные скрипты, то нумерация строк выполняется согласно вложенности");
                         return 0;
                     }
                 }
 
                 if (checkFile(commandname)) {
-                    String x = contentOfFile(arg);
-                    checkContentOfFile(x);
+                    String previousX = arg;
+                    finalScript = contentOfFile(argue);
+                    int innerCommandNumber = checkContentOfFile(finalScript, commandNumber);
+                    if (innerCommandNumber == 0) return 0;
+                    commandNumber = innerCommandNumber;
+                    commandNumber -= 1;
+                    finalContentOfFile(previousX, justLine, finalScript);
                 }
             }
             return commandNumber;
@@ -297,6 +305,9 @@ public class UserManager {
         }
     }
 
+    public void finalContentOfFile(String previousArg, String lineWithExScript, String presentArg ) {
+        finalScript = previousArg.replace(lineWithExScript, presentArg);
+    }
 
     public String contentOfFile (String arg) {
         try {
@@ -314,7 +325,6 @@ public class UserManager {
                 caw.write(charBuffer.array( ), 0, n);
             }
 
-            System.out.println(caw.toString( ));
             return caw.toString( );
 
 
@@ -417,5 +427,13 @@ public class UserManager {
 
     public void setAvailable (HashMap<String, String> available) {
         this.available = available;
+    }
+
+    public void setFinalScript (String finalScript) {
+        this.finalScript = finalScript;
+    }
+
+    public String getFinalScript ( ) {
+        return finalScript;
     }
 }
