@@ -16,7 +16,11 @@ public class GetFromClient {
     public Object get () {
         try {
             ObjectInputStream get = new ObjectInputStream(incoming.getInputStream());
-            return  get.readObject();
+//            System.out.println(1);
+            Object obj = get.readObject();
+//            System.out.println(obj);
+//            System.out.println(2);
+            return  obj;
         } catch (EOFException e) {
             System.out.println("Клиент решил внезапно покинуть нас");
             return null;

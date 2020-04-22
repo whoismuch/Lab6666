@@ -7,43 +7,53 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
 public class DataExchangeWithServer {
-    private static SocketChannel outcomingchannel;
+    private SocketChannel outcomingchannel;
 
-    public DataExchangeWithServer(SocketChannel outcomingchannel){
+    public DataExchangeWithServer (SocketChannel outcomingchannel) {
         this.outcomingchannel = outcomingchannel;
     }
 
-    public void sendToServer(Object object) throws IOException {
+    public void sendToServer (Object object) throws IOException {
 
-       ByteArrayOutputStream baos = new ByteArrayOutputStream();
-       ObjectOutputStream oos = new ObjectOutputStream(baos);
-       oos.writeObject(object);
+//        object = "kjhgf";
+        ByteArrayOutputStream baos = new ByteArrayOutputStream( );
+        ObjectOutputStream oos = new ObjectOutputStream(baos);
+        oos.writeObject(object);
 
-       byte[] outcoming = baos.toByteArray();
-       ByteBuffer byteBuf = ByteBuffer.wrap(outcoming);
-       outcomingchannel.write(byteBuf);
-       byteBuf.clear();
-       baos.flush();
+        byte[] outcoming = baos.toByteArray( );
+
+        ByteBuffer byteBuffer = ByteBuffer.wrap(outcoming);
+
+        int sent = 0;
+        int b = 0;
+        while ((sent = outcomingchannel.write(byteBuffer)) > 0 ) {
+            b = sent;
+        }
+
+        byteBuffer.clear();
+        baos.flush( );
+        oos.flush();
     }
 
-    public Object getFromServer() throws IOException {
-        try  {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ByteBuffer byteBuffer = ByteBuffer.allocate(5000);
-        int n = 0;
-        while ((n = outcomingchannel.read(byteBuffer)) > 0) {
-            byteBuffer.flip();
-            baos.write(byteBuffer.array(), 0, n);
-        }
-        ByteArrayInputStream bios = new ByteArrayInputStream(baos.toByteArray());
-        ObjectInputStream ois = new ObjectInputStream(bios);
-        return ois.readObject();
+
+    public Object getFromServer ( ) throws IOException {
+        try {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream( );
+            ByteBuffer byteBuffer = ByteBuffer.allocate(5000);
+            int n = 0;
+            while ((n = outcomingchannel.read(byteBuffer)) > 0) {
+                byteBuffer.flip( );
+                baos.write(byteBuffer.array( ), 0, n);
+            }
+            ByteArrayInputStream bios = new ByteArrayInputStream(baos.toByteArray( ));
+            ObjectInputStream ois = new ObjectInputStream(bios);
+            return ois.readObject( );
         } catch (ClassNotFoundException e) {
-            System.out.println();
-            e.printStackTrace();
+            System.out.println( );
+            e.printStackTrace( );
             return null;
         } catch (EOFException e) {
-            throw new IOException();
+            throw new IOException( );
         }
     }
 }

@@ -19,7 +19,7 @@ import java.util.stream.Stream;
  * Класс для работы с коллекцией
  */
 public class Navigator implements ICollectionManager {
-    private static ICollection<Route> routeBook;
+    private ICollection<Route> routeBook;
 
     public Navigator(ICollection<Route> routeBook) {
         this.routeBook = routeBook;

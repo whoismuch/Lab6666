@@ -1,6 +1,5 @@
 package client;
 
-import com.sun.javaws.IconUtil;
 import common.exceptions.NoCorrectInputException;
 import common.exceptions.NoPermissionsException;
 import common.generatedClasses.*;
